@@ -16,6 +16,8 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet" />
   <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles-slim@2.12.0/tsparticles.slim.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -196,6 +198,40 @@
     /* ── AI card hover ── */
     .ai-card { transition: all 0.45s var(--spring); }
     .ai-card:hover { transform: translateY(-4px); border-color: rgba(232,184,75,0.3); }
+
+    /* ── Mouse-tracking glow on cards ── */
+    .glow-card { position: relative; overflow: hidden; }
+    .glow-card::before {
+      content: '';
+      position: absolute; width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(232,184,75,0.15) 0%, transparent 70%);
+      border-radius: 50%; pointer-events: none;
+      transform: translate(-50%, -50%);
+      left: var(--mx, -200px); top: var(--my, -200px);
+      opacity: 0; transition: opacity 0.3s ease;
+      z-index: 1;
+    }
+    .glow-card:hover::before { opacity: 1; }
+
+    /* ── Animated gradient text ── */
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .grad-text {
+      background: linear-gradient(135deg, var(--gold), #FFD580, var(--teal), var(--gold));
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientShift 6s ease-in-out infinite;
+    }
+
+    /* ── Particles container ── */
+    #hero-particles {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    }
 
     /* ── Strength card ── */
     .str-card { transition: all 0.45s var(--spring); }
@@ -388,10 +424,12 @@
      HERO
 ══════════════════════════ -->
 <section class="min-h-[100dvh] relative flex items-center overflow-hidden" id="hero" style="background:var(--bg);">
-  <!-- Atmospheric glows -->
-  <div class="blob w-[520px] h-[520px] top-[-120px] right-[-100px]" style="background:rgba(232,184,75,0.07);"></div>
-  <div class="blob w-[400px] h-[400px] bottom-[0px] left-[-80px]" style="background:rgba(77,100,255,0.06);"></div>
-  <div class="blob w-[200px] h-[200px] top-[40%] right-[30%]" style="background:rgba(77,255,219,0.04);"></div>
+  <!-- Particles -->
+  <div id="hero-particles"></div>
+  <!-- Atmospheric glows (parallax) -->
+  <div class="blob w-[520px] h-[520px] top-[-120px] right-[-100px] hero-parallax" data-speed="0.03" style="background:rgba(232,184,75,0.07);"></div>
+  <div class="blob w-[400px] h-[400px] bottom-[0px] left-[-80px] hero-parallax" data-speed="0.02" style="background:rgba(77,100,255,0.06);"></div>
+  <div class="blob w-[200px] h-[200px] top-[40%] right-[30%] hero-parallax" data-speed="0.04" style="background:rgba(77,255,219,0.04);"></div>
 
   <!-- Subtle grid overlay -->
   <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;"></div>
@@ -406,7 +444,7 @@
         <h1 class="text-[2.6rem] md:text-[3.8rem] lg:text-[4.8rem] font-black leading-none tracking-tight mb-6 ko-h fade-up" style="animation-delay:0.16s;color:var(--text);">
           장르를 넘나들며<br>
           시스템의 뼈대를 세우고<br>
-          <span style="color:var(--gold);">유저 경험을 완성하는</span>
+          <span class="grad-text">유저 경험을 완성하는</span>
         </h1>
 
         <p class="text-xl md:text-2xl font-medium ko mb-10 fade-up" style="animation-delay:0.24s;color:var(--muted2);">
@@ -459,7 +497,7 @@
       <!-- Right: Character Sheet card -->
       <div class="flex justify-center lg:justify-end fade-up" style="animation-delay:0.26s;">
         <div class="float-anim">
-          <div style="background:rgba(232,184,75,0.06);border:1px solid rgba(232,184,75,0.22);border-radius:14px;padding:4px;width:280px;animation:goldPulse 4s ease-in-out infinite;">
+          <div id="hero-card" style="background:rgba(232,184,75,0.06);border:1px solid rgba(232,184,75,0.22);border-radius:14px;padding:4px;width:280px;animation:goldPulse 4s ease-in-out infinite;">
             <div class="card-body p-6" style="border-radius:10px;position:relative;">
               <div class="bracket-tl"></div>
               <div class="bracket-br"></div>
@@ -580,7 +618,7 @@
     <div class="grid md:grid-cols-2 gap-5">
 
       <!-- 강점 1 -->
-      <div class="str-card card fade-up" style="animation-delay:0.08s;">
+      <div class="str-card card glow-card fade-up" style="animation-delay:0.08s;">
         <div class="card-body p-7" style="position:relative;">
           <div class="bracket-tl"></div>
           <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-5" style="background:linear-gradient(135deg,var(--gold),#C49028);box-shadow:0 4px 16px rgba(232,184,75,0.3);">
@@ -604,7 +642,7 @@
       </div>
 
       <!-- 강점 2 -->
-      <div class="str-card card fade-up" style="animation-delay:0.13s;">
+      <div class="str-card card glow-card fade-up" style="animation-delay:0.13s;">
         <div class="card-body p-7" style="position:relative;">
           <div class="bracket-tl"></div>
           <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-5" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);">
@@ -628,7 +666,7 @@
       </div>
 
       <!-- 강점 3 -->
-      <div class="str-card card fade-up" style="animation-delay:0.18s;">
+      <div class="str-card card glow-card fade-up" style="animation-delay:0.18s;">
         <div class="card-body p-7" style="position:relative;">
           <div class="bracket-tl"></div>
           <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-5" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);">
@@ -652,7 +690,7 @@
       </div>
 
       <!-- 강점 4 -->
-      <div class="str-card card fade-up" style="animation-delay:0.23s;">
+      <div class="str-card card glow-card fade-up" style="animation-delay:0.23s;">
         <div class="card-body p-7" style="position:relative;">
           <div class="bracket-tl"></div>
           <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-5" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);">
@@ -1049,7 +1087,7 @@
 
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="ai-grid">
 
-      <a href="https://snake-remix-43462196.figma.site" target="_blank" rel="noopener" class="ai-card card block" data-type="프로토타입">
+      <a href="https://snake-remix-43462196.figma.site" target="_blank" rel="noopener" class="ai-card card glow-card block" data-type="프로토타입">
         <div class="card-body p-6 h-full flex flex-col" style="border-radius:calc(1.25rem - 4px);">
           <div class="flex items-start justify-between mb-4">
             <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:rgba(180,77,255,0.12);border:1px solid rgba(180,77,255,0.22);">
@@ -1068,7 +1106,7 @@
         </div>
       </a>
 
-      <a href="https://v0-hotel-management-dashboard-gamma.vercel.app/" target="_blank" rel="noopener" class="ai-card card block" data-type="분석">
+      <a href="https://v0-hotel-management-dashboard-gamma.vercel.app/" target="_blank" rel="noopener" class="ai-card card glow-card block" data-type="분석">
         <div class="card-body p-6 h-full flex flex-col">
           <div class="flex items-start justify-between mb-4">
             <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:var(--teal-dim);border:1px solid rgba(77,255,219,0.2);">
@@ -1087,7 +1125,7 @@
         </div>
       </a>
 
-      <a href="https://v0-mabinogi-mobile-dashboard.vercel.app/" target="_blank" rel="noopener" class="ai-card card block" data-type="분석">
+      <a href="https://v0-mabinogi-mobile-dashboard.vercel.app/" target="_blank" rel="noopener" class="ai-card card glow-card block" data-type="분석">
         <div class="card-body p-6 h-full flex flex-col">
           <div class="flex items-start justify-between mb-4">
             <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:var(--teal-dim);border:1px solid rgba(77,255,219,0.2);">
@@ -1106,7 +1144,7 @@
         </div>
       </a>
 
-      <a href="https://skier-sky-13056596.figma.site" target="_blank" rel="noopener" class="ai-card card block" data-type="분석">
+      <a href="https://skier-sky-13056596.figma.site" target="_blank" rel="noopener" class="ai-card card glow-card block" data-type="분석">
         <div class="card-body p-6 h-full flex flex-col">
           <div class="flex items-start justify-between mb-4">
             <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:var(--teal-dim);border:1px solid rgba(77,255,219,0.2);">
@@ -1125,7 +1163,7 @@
         </div>
       </a>
 
-      <a href="https://funnel-slack-53147729.figma.site" target="_blank" rel="noopener" class="ai-card card block" data-type="기획">
+      <a href="https://funnel-slack-53147729.figma.site" target="_blank" rel="noopener" class="ai-card card glow-card block" data-type="기획">
         <div class="card-body p-6 h-full flex flex-col">
           <div class="flex items-start justify-between mb-4">
             <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:var(--gold-dim);border:1px solid rgba(232,184,75,0.2);">
@@ -1144,7 +1182,7 @@
         </div>
       </a>
 
-      <a href="https://agenda-rover-84076333.figma.site" target="_blank" rel="noopener" class="ai-card card block" data-type="기획">
+      <a href="https://agenda-rover-84076333.figma.site" target="_blank" rel="noopener" class="ai-card card glow-card block" data-type="기획">
         <div class="card-body p-6 h-full flex flex-col">
           <div class="flex items-start justify-between mb-4">
             <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:var(--gold-dim);border:1px solid rgba(232,184,75,0.2);">
@@ -1163,7 +1201,7 @@
         </div>
       </a>
 
-      <a href="https://prong-toad-52286400.figma.site" target="_blank" rel="noopener" class="ai-card card block" data-type="툴">
+      <a href="https://prong-toad-52286400.figma.site" target="_blank" rel="noopener" class="ai-card card glow-card block" data-type="툴">
         <div class="card-body p-6 h-full flex flex-col">
           <div class="flex items-start justify-between mb-4">
             <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:rgba(77,200,100,0.12);border:1px solid rgba(77,200,100,0.22);">
@@ -1182,7 +1220,7 @@
         </div>
       </a>
 
-      <a href="https://sheen-hope-54103725.figma.site" target="_blank" rel="noopener" class="ai-card card block" data-type="기획">
+      <a href="https://sheen-hope-54103725.figma.site" target="_blank" rel="noopener" class="ai-card card glow-card block" data-type="기획">
         <div class="card-body p-6 h-full flex flex-col">
           <div class="flex items-start justify-between mb-4">
             <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:var(--gold-dim);border:1px solid rgba(232,184,75,0.2);">
@@ -1201,7 +1239,7 @@
         </div>
       </a>
 
-      <a href="https://hull-media-63536642.figma.site" target="_blank" rel="noopener" class="ai-card card block" data-type="분석">
+      <a href="https://hull-media-63536642.figma.site" target="_blank" rel="noopener" class="ai-card card glow-card block" data-type="분석">
         <div class="card-body p-6 h-full flex flex-col">
           <div class="flex items-start justify-between mb-4">
             <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:var(--teal-dim);border:1px solid rgba(77,255,219,0.2);">
@@ -1220,7 +1258,7 @@
         </div>
       </a>
 
-      <a href="https://twice-spout-09646504.figma.site" target="_blank" rel="noopener" class="ai-card card block" data-type="기획">
+      <a href="https://twice-spout-09646504.figma.site" target="_blank" rel="noopener" class="ai-card card glow-card block" data-type="기획">
         <div class="card-body p-6 h-full flex flex-col">
           <div class="flex items-start justify-between mb-4">
             <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:var(--gold-dim);border:1px solid rgba(232,184,75,0.2);">
@@ -1239,7 +1277,7 @@
         </div>
       </a>
 
-      <a href="https://bonus-film-48172024.figma.site" target="_blank" rel="noopener" class="ai-card card block" data-type="기획">
+      <a href="https://bonus-film-48172024.figma.site" target="_blank" rel="noopener" class="ai-card card glow-card block" data-type="기획">
         <div class="card-body p-6 h-full flex flex-col">
           <div class="flex items-start justify-between mb-4">
             <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:var(--gold-dim);border:1px solid rgba(232,184,75,0.2);">
@@ -1258,7 +1296,7 @@
         </div>
       </a>
 
-      <a href="https://wavy-stock-47350332.figma.site" target="_blank" rel="noopener" class="ai-card card block" data-type="기획">
+      <a href="https://wavy-stock-47350332.figma.site" target="_blank" rel="noopener" class="ai-card card glow-card block" data-type="기획">
         <div class="card-body p-6 h-full flex flex-col">
           <div class="flex items-start justify-between mb-4">
             <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:var(--gold-dim);border:1px solid rgba(232,184,75,0.2);">
@@ -1277,7 +1315,7 @@
         </div>
       </a>
 
-      <a href="https://hand-pacing-87256353.figma.site" target="_blank" rel="noopener" class="ai-card card block" data-type="분석">
+      <a href="https://hand-pacing-87256353.figma.site" target="_blank" rel="noopener" class="ai-card card glow-card block" data-type="분석">
         <div class="card-body p-6 h-full flex flex-col">
           <div class="flex items-start justify-between mb-4">
             <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:var(--teal-dim);border:1px solid rgba(77,255,219,0.2);">
@@ -1526,6 +1564,55 @@
       } else {
         card.classList.add('hidden-card');
       }
+    });
+  }
+
+  // ── Hero mouse parallax ──
+  const hero = document.getElementById('hero');
+  if (hero) {
+    hero.addEventListener('mousemove', e => {
+      const rect = hero.getBoundingClientRect();
+      const cx = (e.clientX - rect.left) / rect.width - 0.5;
+      const cy = (e.clientY - rect.top) / rect.height - 0.5;
+      hero.querySelectorAll('.hero-parallax').forEach(el => {
+        const speed = parseFloat(el.dataset.speed) || 0.02;
+        el.style.transform = `translate(${cx * speed * 800}px, ${cy * speed * 800}px)`;
+      });
+    });
+  }
+
+  // ── Card mouse-tracking glow ──
+  document.querySelectorAll('.glow-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty('--mx', (e.clientX - rect.left) + 'px');
+      card.style.setProperty('--my', (e.clientY - rect.top) + 'px');
+    });
+  });
+
+  // ── VanillaTilt on strength cards ──
+  VanillaTilt.init(document.querySelectorAll('.str-card'), {
+    max: 6, speed: 400, glare: true, 'max-glare': 0.08, scale: 1.02
+  });
+  const heroCard = document.getElementById('hero-card');
+  if (heroCard) {
+    VanillaTilt.init(heroCard, { max: 10, speed: 300, glare: true, 'max-glare': 0.12 });
+  }
+
+  // ── tsParticles hero background ──
+  if (typeof tsParticles !== 'undefined') {
+    tsParticles.load('hero-particles', {
+      fullScreen: false,
+      particles: {
+        number: { value: 40, density: { enable: true, area: 1200 } },
+        color: { value: ['#E8B84B', '#FFD580', '#4DFFDB'] },
+        shape: { type: 'circle' },
+        opacity: { value: { min: 0.1, max: 0.4 }, animation: { enable: true, speed: 0.5, minimumValue: 0.05 } },
+        size: { value: { min: 1, max: 3 } },
+        move: { enable: true, speed: 0.4, direction: 'none', outModes: 'out' },
+        links: { enable: true, distance: 120, color: '#E8B84B', opacity: 0.06, width: 1 }
+      },
+      detectRetina: true
     });
   }
 
